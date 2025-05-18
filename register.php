@@ -8,27 +8,20 @@ include 'db.php';
 
     <?php
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        $username = $_POST['username'] ?? '';
-        $password = $_POST['password'] ?? '';
-        $Email = $_POST['Email'] ?? '';
+        $username = $_POST['username'];
+        $password = $_POST['password'];
+        $Email = $_POST['Email'];
 
-        // بررسی اینکه فیلدها خالی نباشن
-        if (empty($username) || empty($password) || empty($Email)) {
-            echo "<p style='color: red;'>لطفا همه فیلدها را پر کنید.</p>";
-        } else {
-            try {
-                $query = "INSERT INTO users (username, password, Email) VALUES (?, ?, ?)";
-                $stmt = mysqli_prepare($conn, $query);
-                mysqli_stmt_bind_param($stmt, "sss", $username, $password, $Email);
-                $result = mysqli_stmt_execute($stmt);
+        try{
+        $query = "INSERT INTO `users` (username, password, Email) value ('$username', '$password', '$Email')";
+        $result = mysqli_query($conn, $query);
 
-                if ($result) {
-                    header("Location: login.php?msg=You have registered successfully");
-                    exit;
-                }
-            } catch (mysqli_sql_exception $e) {
-                echo "<p style='color: red;'>خطا: " . htmlspecialchars($e->getMessage()) . "</p>";
-            }
+        if ($result === true){
+            header("Location: login.php?msg=You have registered successfully"); 
+        } 
+
+        } catch (mysqli_sql_exception $e) { 
+            var_dump($e->getMessage());
         }
     }
     ?>
@@ -47,5 +40,8 @@ include 'db.php';
 </div>
 
 <?php
+  if (isset($message)) {
+      echo "<p style='color: red;'>$message</p>";
+  }
 include 'footer.php';
 ?>
