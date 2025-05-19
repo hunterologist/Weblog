@@ -15,8 +15,8 @@ if (isset($_SESSION['is_logged']) === true) {
       if ($password === ""){
           $sql = "UPDATE `users` SET `first_name` = '$first_name', `last_name` = '$last_name', `bio` = '$bio' where `id` = " . intval($id);
       }else{
-          $sql = "UPDATE `users` SET `first_name` = '$first_name', `last_name` = '$last_name', `bio` = '$bio', `password` = $password where `id` = " . intval($id);
-          $password_change = true;
+        $sql = "UPDATE `users` SET `first_name` = '$first_name', `last_name` = '$last_name', `bio` = '$bio', `password` = '$password' where `id` = " . intval($id);
+        $password_change = true;
       }
 
       try {
