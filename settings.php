@@ -64,6 +64,8 @@ if (isset($_SESSION['is_logged']) === true) {
     button { padding: 0.7rem 1.5rem; background-color: #4a90e2; color: white; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; }
     button:hover { background-color: #357ac9; }
     footer { text-align: center; padding: 1rem; color: #777; font-size: 0.9rem; }
+    section {color: black; padding: 0rem;text-align: center;  font-size: 1rem;}
+
   </style>
 </head>
 <body>
@@ -88,9 +90,9 @@ if (isset($_SESSION['is_logged']) === true) {
             <h1>Settings</h1>
             <p>This is a simple and smooth HTML template for your website.</p>
         </section>
-        <img src="<?='/get_image.php?imgsrc=statics/images/' . md5($_SESSION['id']) . '.png';?>" onerror="this.src='/statics/images/user.jpg'" width="200" height="200"><img><br>
-        <input type="file" id="imageUpload" accept="image/*">
-        <progress id="uploadProgress" max="100" value="0"></progress>
+        <img src="<?='/get_image.php?imgsrc=statics/images/' . md5($_SESSION['id']) . '.png';?>" onerror="this.src='/statics/images/user.jpg'" width="200" height="200"><img><br><br>
+        <input type="file" id="imageUpload" accept="image/*"><br>
+        <progress id="uploadProgress" max="100" value="0"></progress><br>
         <div id="message"></div>
 
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
