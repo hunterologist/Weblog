@@ -2,58 +2,47 @@
 include 'db.php';
 session_start();
 
-if (!isset($_SESSION['is_logged']) || $_SESSION['is_logged'] !== true) {
-  echo "<p>Redirecting you to login page...</p>";
-  echo "<script>
-    setTimeout(function () {
-      window.location.href = '/login.php';
-      document.body.innerHTML = '<p>Redirect failed</p>';
-    }, 3000);
-  </script>";
-  exit;
-}
+if (isset($_SESSION['is_logged']) === true) {
 
-try {
-  $query = "SELECT * FROM `users` WHERE id = " . intval($_SESSION['id']);
-  $result = mysqli_query($conn, $query);
-  $row = mysqli_fetch_assoc($result);
-} catch (mysqli_sql_exception $e) {
-  die("Database Error: " . $e->getMessage());
-}
+  if ($_SERVER["REQUEST_METHOD"] == "POST") {
+      $id = $_POST['id'];
+      $first_name = mysqli_real_escape_string($conn, $_POST['first_name']);
+      $last_name = mysqli_real_escape_string($conn, $_POST['last_name']);
+      $password = mysqli_real_escape_string($conn, $_POST['password']);
+      $bio = mysqli_real_escape_string($conn, $_POST['bio']);
+      $password_change = false;
+  
+      if ($password === ""){
+          $sql = "UPDATE `users` SET `first_name` = '$first_name', `last_name` = '$last_name', `bio` = '$bio' where `id` = " . intval($id);
+      }else{
+          $sql = "UPDATE `users` SET `first_name` = '$first_name', `last_name` = '$last_name', `bio` = '$bio', `password` = $password where `id` = " . intval($id);
+          $password_change = true;
+      }
 
-// Handle update
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-  $first_name = mysqli_real_escape_string($conn, $_POST['first_name']);
-  $last_name  = mysqli_real_escape_string($conn, $_POST['last_name']);
-  $bio        = mysqli_real_escape_string($conn, $_POST['bio']);
-  $password   = mysqli_real_escape_string($conn, $_POST['password']);
-  $update_query = "";
-
-  if ($password === "") {
-    $update_query = "UPDATE users SET 
-      first_name = '$first_name', 
-      last_name = '$last_name', 
-      bio = '$bio' 
-      WHERE id = " . intval($_SESSION['id']);
-  } else {
-    $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-    $update_query = "UPDATE users SET 
-      first_name = '$first_name', 
-      last_name = '$last_name', 
-      bio = '$bio',
-      password = '$hashed_password'
-      WHERE id = " . intval($_SESSION['id']);
+      try {
+          $result = mysqli_query($conn, $sql);
+          if ($result === true){
+              if ($password_change === true) header("Location: logout.php"); 
+              else header("Location: settings.php");
+          }
+      } catch (mysqli_sql_exception $e) {
+          $message = $e->getMessage();
+          print($message);
+      }
+      exit;
   }
 
-  if (mysqli_query($conn, $update_query)) {
-    header("Location: settings.php?success=1");
-    exit;
-  } else {
-    $error = "Update failed: " . mysqli_error($conn);
+  try {
+      $sql = "select * from `users` where id = " . $_SESSION['id'];
+      $result = mysqli_query($conn, $sql);
+      $user_information = mysqli_fetch_assoc($result);
+
+      //print_r($user_informationow);
+
+  } catch (mysqli_sql_exception $e) {
+      $message = $e->getMessage();
   }
-}
 ?>
-
 
 <!DOCTYPE html>
 <html lang="en">
@@ -62,7 +51,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Macan Weblog</title>
   <style>
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background-color: #f9f9f9; color: #333; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; background-color:rgb(141, 196, 241); color:rgb(0, 0, 0); }
     header { background-color: #4a90e2; color: white; padding: 1rem 2rem; text-align: center; }
     nav { background-color: #333; padding: 0.5rem; text-align: center; }
     nav ul { list-style: none; padding: 0; margin: 0; display: flex; justify-content: center; gap: 20px; }
@@ -95,50 +84,64 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 </nav>
 
 <div class="container">
-  <h2>Update Profile</h2>
+        <section>
+            <h1>Settings</h1>
+            <p>This is a simple and smooth HTML template for your website.</p>
+        </section>
+        <img src="<?='/get_image.php?imgsrc=statics/images/' . md5($_SESSION['id']) . '.png';?>" onerror="this.src='/statics/images/user.jpg'" width="200" height="200"><img><br>
+        <input type="file" id="imageUpload" accept="image/*">
+        <progress id="uploadProgress" max="100" value="0"></progress>
+        <div id="message"></div>
 
-  <?php if (isset($success)) echo "<p style='color:green;'>$success</p>"; ?>
-  <?php if (isset($error)) echo "<p style='color:red;'>$error</p>"; ?>
-  <img src= "<?'/statics/images/user.jpg' . md5($_SESSION['user_id']) . '.jpg';?>" onerror="this.src='/statics/images/user.png'"><img><a htr
-  <form method="post" action="">
-    <div class="form-group">
-      <label>Username</label>
-      <input type="text" name="username" value="<?= htmlspecialchars($row['username'] ?? '') ?>" disabled>
-    </div>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+        <script src="/statics/upload.js"></script>
 
-    <div class="form-group">
-      <label>Email</label>
-      <input type="email" name="email" value="<?= htmlspecialchars($row['email'] ?? '') ?>" disabled>
-    </div>
+        <br>
 
-    <div class="form-group">
-      <label>Password</label>
-      <input type="password" name="password" value="<?= htmlspecialchars($row['password'] ?? '') ?>">
-    </div>
+        <form action="" method="POST">
+        <!-- User ID (usually hidden) -->
+        <input type="hidden" name="id" value="<?=$user_information['id'];?>"> <!-- Replace with the actual user_id -->
 
-    <div class="form-group">
-      <label>First Name</label>
-      <input type="text" name="first_name" value="<?= htmlspecialchars($row['first_name'] ?? '') ?>">
-    </div>
+        <!-- Username -->
+        <label for="username">Username:</label>
+        <input type="text" id="username" name="username" value="<?=$user_information['username'];?>" disabled><br>
 
-    <div class="form-group">
-      <label>Last Name</label>
-      <input type="text" name="last_name" value="<?= htmlspecialchars($row['last_name'] ?? '') ?>">
-    </div>
+        <!-- Email -->
+        <label for="email">Email:</label>
+        <input type="email" id="email" name="email" value="<?=$user_information['email'];?>" disabled><br>
 
-    <div class="form-group">
-      <label>Bio</label>
-      <textarea name="bio" rows="4"><?= htmlspecialchars($row['bio'] ?? '') ?></textarea>
-    </div>
+        <!-- First Name -->
+        <label for="first_name">First Name:</label>
+        <input type="text" id="first_name" name="first_name" value="<?=$user_information['first_name'];?>"><br>
 
-    <div class="form-group">
-      <button type="submit">Save Changes</button>
-    </div>
-  </form>
-</div>
+        <!-- Last Name -->
+        <label for="last_name">Last Name:</label>
+        <input type="text" id="last_name" name="last_name" value="<?=$user_information['last_name'];?>"><br>
 
+        <!-- Bio -->
+        <label for="bio">Bio:</label>
+        <textarea id="bio" name="bio"><?=$user_information['bio'];?></textarea><br>
+
+        <!-- Password -->
+        <label for="password">Password:</label>
+        <input type="password" id="password" name="password" value=""><br>
+        <input type="submit" value="Update">
+    </form>
+<?php } else { ?>
+<p>Redirecting you to login page...</p>
+<script>
+    // Delay the redirection for 3 seconds (adjust as needed)
+    setTimeout(function () {
+        // Specify the URL you want to redirect to
+        window.location.href = '/login.php';
+
+        // Display a message (optional)
+        document.body.innerHTML = '<p>You are now being redirected to the new page.</p>';
+    }, 3000); // 3000 milliseconds (3 seconds)
+</script>
+<?php } ?>
 <footer>
-  <p>&copy; 2025 My Weblog. All rights reserved.</p>
+    <p>&copy; 2023 Voorivex Weblog System. All rights reserved.</p>
 </footer>
 
 </body>

@@ -13,11 +13,12 @@ include 'db.php';
         $Email = $_POST['Email'];
 
         try{
-        $query = "INSERT INTO `users` (username, password, Email) value ('$username', '$password', '$Email')";
+        $query = "INSERT INTO `users` (username, email, password) value ('$username', '$email', '$password')";
         $result = mysqli_query($conn, $query);
 
         if ($result === true){
-            header("Location: login.php?msg=You have registered successfully"); 
+            // Redirect to a welcome page or dashboard
+            header("Location: login.php?msg=You have registered successfully, please login");
         } 
 
         } catch (mysqli_sql_exception $e) { 
@@ -26,18 +27,19 @@ include 'db.php';
     }
     ?>
 
-    <form method="POST" action="register.php">
-        <input type="text" name="username" placeholder="Username" required><br>
-        <input type="password" name="password" placeholder="Password" required><br>
-        <input type="text" name="Email" placeholder="Email" required><br>
-        <input type="submit" value="Register"><br>
-        <a href='login.php'>Already have an account?</a>
-    </form>
+<form action="register.php" method="post">
+    <label for="username">Username:</label>
+    <input type="text" id="username" name="username" required><br><br>
 
-    <div class="footer">
-        &copy; 2025 My Weblog. All rights reserved
-    </div>
-</div>
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" required><br><br>
+
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" required><br><br>
+
+    <input type="submit" value="Register"><br>
+    <a href='login.php'>You've already an account?</a>
+</form>
 
 <?php
   if (isset($message)) {

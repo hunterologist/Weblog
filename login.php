@@ -4,11 +4,13 @@
     include 'header.php';
     echo '<h2>Login</h2>';
     include 'db.php';
+
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
+
         $username = $_POST['username'];
         $password = $_POST['password'];
 
-        $query = "SELECT * FROM users WHERE username = '$username' AND password = '$password' LIMIT 1";
+        $query = "SELECT * FROM users WHERE username = '$username' AND password = '$password'";
         $result = mysqli_query($conn, $query);
 
         if ($result && mysqli_num_rows($result) == 1) {
@@ -18,6 +20,7 @@
             $_SESSION['id'] = $row['id'];
             header("Location: user_panel.php");
         } else {
+            // Authentication failed
             $message = "Invalid username or password.Please try again. <br> If you cannot remember your password please <a href='forget_password.php?username=$username'>Click here</a>";
             $username = $_POST['username'];
           }
