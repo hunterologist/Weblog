@@ -2,7 +2,7 @@
     <?php
     session_start();
     include 'header.php';
-    echo '<h2>Login</h2>';
+    echo '<h2>login</h2>';
     include 'db.php';
 
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
