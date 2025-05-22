@@ -1,36 +1,13 @@
-<div class="login-box">
-
 <?php
-session_start(); 
+session_start();
 include 'db.php';
 if (isset($_SESSION['is_logged']) === true) {
 
-    if ($_SERVER["REQUEST_METHOD"] == "POST") {
-        $title = $_POST['title'];
-        $content = $_POST['content'];
-        $author_id = $_SESSION['id'];
-        $category_id = $_POST['category'];
-
-        try {
-            $sql = "INSERT INTO `posts` (title, content, author_id, category_id) value ('$title', '$content', '$author_id', '$category_id')";
-            $result = mysqli_query($conn, $sql);
-
-            if ($result === true){
-                header("Location: my_posts.php?msg=Your post has been published successfully!");
-                exit;
-            }
-        } catch (mysqli_sql_exception $e) {
-            $message = $e->getMessage();
-        } 
-        
-    }
-
-    $sql = "SELECT * FROM categories";
+    $sql = "SELECT * FROM posts where author_id = " . $_SESSION['id'];
     $result = mysqli_query($conn, $sql);
     $rows = mysqli_fetch_all($result);
 
 ?>
-
 
 
 <!DOCTYPE html>
@@ -130,27 +107,22 @@ if (isset($_SESSION['is_logged']) === true) {
 
     <main>
         <section>
-            <h1>Write a blog post</h1>
+            <h1>My blog posts</h1>
         </section>
-
-        <form action="" method="POST">
-
-        <!-- Username -->
-        <label for="title">Title:</label>
-        <input type="text" id="title" name="title" value="" placeholder="title"><br>
-
-        <!-- Bio -->
-        <label for="content">Content:</label><br>
-        <textarea style="width: 500px; height: 200px;" id="content" name="content" placeholder="Hi, in this post I want to talk about..."></textarea><br>
-    
-        <select id="category" name="category">
-            <?php foreach($rows as $row){
-                echo '<option value="' . $row[0] . '">' . $row[1] . '</option>';
+        <?php
+            foreach ($rows as $row) {
+                echo '- ', $row[1], ', published in: ', $row[5], ' | <a href="/view_post.php?post_id=' . $row[0] . '">view</a>',' <a href="/edit_post.php?post_id=' . $row[0] . '">edit</a> <a href="/delete_post.php?post_id=' . $row[0] . '">delete</a><br>';
             }
-            ?>
-        </select>
 
-        <input type="submit" value="Post">
+            echo '<br>';
+
+            if (array_key_exists('msg', $_GET)) {
+                $message = $_GET['msg'];
+            }
+            if (isset($message)) {
+                echo "<p>$message</p>";
+            }
+        ?>
     </form>
     </main>
 <?php } else { ?>
@@ -165,12 +137,9 @@ if (isset($_SESSION['is_logged']) === true) {
         document.body.innerHTML = '<p>You are now being redirected to the new page.</p>';
     }, 3000); // 3000 milliseconds (3 seconds)
 </script>
-
 <?php } ?>
-
-  <footer>
-    <p>&copy; 2025 My Weblog. All rights reserved.</p>
-  </footer>
-
+<footer>
+    <p>&copy; 2023 Voorivex Weblog System. All rights reserved.</p>
+</footer>
 </body>
 </html>

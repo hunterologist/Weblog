@@ -77,11 +77,12 @@ if (isset($_SESSION['is_logged']) === true) {
 
 <nav>
   <ul>
-    <li><a href="#">Panel</a></li>
-    <li><a href="#">Write</a></li>
-    <li><a href="#">Posts</a></li>
-    <li><a href="settings.php">Settings</a></li>
-    <li>(<?php echo $_SESSION['username']?>)<a href="logout.php">Logout</a></li>
+      <li><a href="index.php">Main</a></li>
+      <li><a href="user_panel.php">Panel</a></li>
+      <li><a href="wirte_post.php">Write</a></li>
+      <li><a href="my_posts.php">Posts</a></li>
+      <li><a href="settings.php">Settings</a></li>
+      <li>(<?php echo $_SESSION['username']?>) <a href="/logout.php">Logout</a></li>
   </ul>
 </nav>
 
