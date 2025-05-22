@@ -1,3 +1,5 @@
+<div class="login-box">
+
 <?php
 session_start();
 include 'header.php';
@@ -7,7 +9,7 @@ if (isset($_SESSION['is_logged']) === true) {
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $title = $_POST['title'];
         $content = $_POST['content'];
-        $author_id = $_SESSION['user_id'];
+        $author_id = $_SESSION['id'];
         $category_id = $_POST['category'];
 
         try {
@@ -29,6 +31,90 @@ if (isset($_SESSION['is_logged']) === true) {
     $rows = mysqli_fetch_all($result);
 
 ?>
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <script src="/statics/function.js"> </script>
+  <title>Macan Weblog</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      background-color: #f9f9f9;
+      color: #333;
+    }
+
+    header {
+      background-color: #4a90e2;
+      color: white;
+      padding: 1rem 2rem;
+      text-align: center;
+    }
+
+    nav {
+      background-color: #333;
+      padding: 0.5rem;
+      text-align: center;
+    }
+
+    nav ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    nav li {
+      color: white;
+      display: inline;
+    }
+
+    nav a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+      padding: 0.5rem 1rem;
+      transition: background-color 0.3s;
+    }
+
+    
+    nav a:hover {
+      background-color: #444;
+      border-radius: 4px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 1rem;
+      background-color: white;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      border-radius: 8px;
+    }
+
+    footer {
+      text-align: center;
+      padding: 1rem;
+      color: #777;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 600px) {
+      nav a {
+        display: block;
+        margin: 10px 0;
+      }
+    }
+  </style>
+</head>
+
 <body>
     <header>
         <nav>
@@ -80,9 +166,12 @@ if (isset($_SESSION['is_logged']) === true) {
         document.body.innerHTML = '<p>You are now being redirected to the new page.</p>';
     }, 3000); // 3000 milliseconds (3 seconds)
 </script>
+
 <?php } ?>
-<footer>
-    <p>&copy; 2023 Voorivex Weblog System. All rights reserved.</p>
-</footer>
+
+  <footer>
+    <p>&copy; 2025 My Weblog. All rights reserved.</p>
+  </footer>
+
 </body>
 </html>
