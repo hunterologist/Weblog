@@ -1,6 +1,5 @@
 // upload.js
 
-// مطمئن شو که jQuery لود شده
 if (typeof jQuery === 'undefined') {
     console.error("jQuery is not loaded. Please include jQuery before this script.");
 } else {
@@ -26,6 +25,7 @@ if (typeof jQuery === 'undefined') {
                     data: formData,
                     contentType: false,
                     processData: false,
+                    dataType: 'json', // انتظار JSON داریم
                     xhr: function() {
                         var xhr = new window.XMLHttpRequest();
                         xhr.upload.addEventListener("progress", function(evt) {
@@ -39,11 +39,14 @@ if (typeof jQuery === 'undefined') {
                     success: function(response) {
                         var messageDiv = document.createElement("p");
                         messageDiv.id = "message";
-                        messageDiv.innerHTML = response;
+                        messageDiv.className = response.status === 'success' ? "message success" : "message error";
+                        messageDiv.innerHTML = response.message;
                         fileInput.parentNode.appendChild(messageDiv);
-                        setTimeout(function() {
-                            location.reload();
-                        }, 2000);
+                        // به جای رفرش، فقط تصویر رو آپدیت می‌کنیم
+                        if (response.status === 'success') {
+                            var img = document.querySelector('img[alt="Profile Image"]');
+                            img.src = img.src + '?' + new Date().getTime(); // Force reload image
+                        }
                     },
                     error: function(xhr, status, error) {
                         var messageDiv = document.createElement("p");
