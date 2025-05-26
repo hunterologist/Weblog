@@ -1,62 +1,54 @@
 <?php
 session_start();
+$page_title = "All Posts";
 include 'header.php';
 include 'db.php';
 
 function author_id_to_name($conn, $id) {
-    $result = mysqli_query($conn, "SELECT * FROM `users` where `user_id` = " . $id);
+    // عمداً آسیب‌پذیر به SQL Injection برای تمرین
+    $result = mysqli_query($conn, "SELECT * FROM `users` WHERE `id` = " . $id);
     $author = mysqli_fetch_assoc($result);
-    return $author['username'];
+    return $author['username'] ?? 'Unknown';
 }
 
 function category_id_to_name($conn, $id) {
-    $result = mysqli_query($conn, "SELECT * FROM `categories` where `category_id` = " . $id);
-    $author = mysqli_fetch_assoc($result);
-    return $author['category_name'];
+    // عمداً آسیب‌پذیر به SQL Injection برای تمرین
+    $result = mysqli_query($conn, "SELECT * FROM `categories` WHERE `categories_id` = " . $id);
+    $category = mysqli_fetch_assoc($result);
+    return $category['categories_name'] ?? 'Unknown';
 }
 
+$sql = "SELECT * FROM `posts`";
 if (array_key_exists('author_id', $_GET)) {
-    # unsafe query led to SQLi vulnerability:
-    # $sql = "SELECT * FROM `posts` where author_id = " . $_GET['author_id'];
-    # safe query:
-    $sql = "SELECT * FROM `posts` where author_id = " . intval($_GET['author_id']);
-} else {
-    $sql = "SELECT * FROM `posts`";
+    $author_id = intval($_GET['author_id']);
+    $sql = "SELECT * FROM `posts` WHERE author_id = $author_id";
 }
-
 
 $result = mysqli_query($conn, $sql);
-
-$rows = array(); // Initialize an empty array to store the rows
-
-while ($row = mysqli_fetch_assoc($result)) {
-    // Append each row as an associative array to the $rows array
-    $rows[] = $row;
-}
-
+$posts = mysqli_fetch_all($result, MYSQLI_ASSOC);
 ?>
-<body>
-    <header>
-        <nav>
-            <ul>
-                <li><a href="index.php">Index</a></li>
-                <li><a href="/all_posts.php">All Posts</a></li>
-                <li><a href="/user_panel.php">User Panel</a></li>
-            </ul>
-        </nav>
-    </header>
 
-    <main>
-        <section>
-            <h1>All blog posts</h1>
-            <?php foreach ($rows as $row) { ?>
-            <p>- <a href="/show.php?post_id=<?php echo $row['post_id']; ?>"><?php echo $row['title']; ?></a>, published in <?php echo $row['publication_date']; ?> in <b><?php echo category_id_to_name($conn, $row['category_id']); ?></b> by <a href="all_posts.php?author_id=<?php echo $row['author_id']; ?>"><?php echo author_id_to_name($conn, $row['author_id']);?></a></p>
-            <?php } ?>
-        </section>
+<section class="max-w-5xl mx-auto py-12">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">All Posts</h1>
 
-</script>
-<footer>
-    <p>&copy; 2023 Voorivex Weblog System. All rights reserved.</p>
-</footer>
-</body>
-</html>
+    <?php if (empty($posts)): ?>
+        <p class="text-gray-600 text-center">No posts found.</p>
+    <?php else: ?>
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <?php foreach ($posts as $post): ?>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h2 class="text-xl font-bold text-gray-800 mb-2">
+                        <a href="view_post.php?post_id=<?php echo $post['post_id']; ?>" class="text-blue-600 hover:underline"><?php echo htmlspecialchars($post['title']); ?></a>
+                    </h2>
+                    <!-- عمداً آسیب‌پذیر به XSS برای تمرین -->
+                    <p class="text-gray-600 mb-4"><?php echo $post['content']; ?></p>
+                    <p class="text-sm text-gray-500 mb-2">Category: <?php echo htmlspecialchars(category_id_to_name($conn, $post['category_id'])); ?></p>
+                    <p class="text-sm text-gray-500 mb-2">Published on: <?php echo htmlspecialchars($post['publication_date'] ?? 'Unknown'); ?></p>
+                    <p class="text-sm text-gray-500">By: <a href="all_posts.php?author_id=<?php echo $post['author_id']; ?>" class="text-blue-600 hover:underline"><?php echo htmlspecialchars(author_id_to_name($conn, $post['author_id'])); ?></a></p>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
+</section>
+
+<?php include 'footer.php'; ?>

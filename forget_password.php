@@ -2,16 +2,12 @@
 include 'header.php';
 include 'db.php';
 include 'functions.php';
-?>
 
-<div class="login-box">
-    <h2>Registration</h2>
-
-<?php
+$message = '';
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    // Get user input from the form
     $username = $_POST["username"];
 
+    // عمداً آسیب‌پذیر به SQL Injection برای تمرین
     $query = "SELECT * FROM users WHERE username = '$username'";
     $result = mysqli_query($conn, $query);
 
@@ -20,29 +16,32 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         
         $random_string = md5(generateRandomString(10));
         $update_query = "UPDATE users SET `token` = '$random_string' WHERE username = '$username'";
-        $update_result = mysqli_query($conn, $update_query); // اصلاح این خط
+        $update_result = mysqli_query($conn, $update_query);
 
-        // email the link
-        $message = "The reset link has been sent to your email address: " . $row['email'] . "<br>";    
-        $message .= "http://" . $_SERVER['SERVER_NAME'] . "/reset_password.php?token=$random_string";
-        echo $message;
+        $message = "The reset link has been sent to your email address: " . htmlspecialchars($row['email']) . "<br>";
+        $message .= "http://" . htmlspecialchars($_SERVER['SERVER_NAME']) . "/reset_password.php?token=" . $random_string;
     } else {
-        echo "<p style='color:red'>User not found.</p>";
+        $message = "<p style='color:red'>User not found.</p>";
     }
 }
-
 ?>
-<form action="forget_password.php" method="post">
 
-    <label for="username">Username:</label>
-    <input type="username" id="username" name="username" value="<?php if(array_key_exists('username', $_GET)) echo $_GET['username'];?>" required>
-    <input type="submit" value="Reset"><br><br>
-</form>
+<section class="max-w-md mx-auto py-12">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Forgot Password</h1>
 
+    <?php if ($message): ?>
+        <p class="text-center mb-4"><?php echo $message; ?></p>
+    <?php endif; ?>
 
-<?php
-if (isset($message)) {
-    echo "<p>$message</p>";
-}
-include 'footer.php';
-?>
+    <div class="bg-white p-6 rounded-lg shadow-md">
+        <form action="forget_password.php" method="post" class="space-y-4">
+            <div>
+                <label for="username" class="block text-gray-700 font-semibold mb-2">Username</label>
+                <input type="text" id="username" name="username" value="<?php echo isset($_GET['username']) ? htmlspecialchars($_GET['username']) : ''; ?>" class="w-full p-2 border rounded" required>
+            </div>
+            <input type="submit" value="Reset" class="w-full bg-blue-600 text-white p-2 rounded hover:bg-blue-700 transition duration-300">
+        </form>
+    </div>
+</section>
+
+<?php include 'footer.php'; ?>

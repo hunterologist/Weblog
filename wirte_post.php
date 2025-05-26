@@ -4,6 +4,10 @@ $page_title = "Write a New Post";
 include 'header.php';
 include 'db.php';
 
+// فعال کردن نمایش خطاها برای دیباگ
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 if (isset($_SESSION['is_logged']) === true) {
     $message = '';
 
@@ -23,49 +27,53 @@ if (isset($_SESSION['is_logged']) === true) {
                 exit;
             }
         } catch (mysqli_sql_exception $e) {
-            $message = "Error: " . $e->getMessage();
+            $message = "Error: " . htmlspecialchars($e->getMessage());
         }
     }
 
     // لود دسته‌بندی‌ها
     $sql = "SELECT * FROM categories";
     $result = mysqli_query($conn, $sql);
-    $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
+    if ($result) {
+        $rows = mysqli_fetch_all($result, MYSQLI_ASSOC);
+    } else {
+        $message = "Error loading categories: " . htmlspecialchars(mysqli_error($conn));
+    }
 ?>
 
 <section class="max-w-2xl mx-auto bg-white p-8 rounded-lg shadow-md">
     <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Write a New Post</h1>
     
     <?php if ($message): ?>
-        <p class="text-red-500 text-center mb-4"><?php echo htmlspecialchars($message); ?></p>
+        <p class="text-red-500 text-center mb-4"><?php echo $message; ?></p>
     <?php endif; ?>
 
-    <form action="" method="POST" class="space-y-6">
-        <!-- Title -->
-        <div>
-            <label for="title" class="block text-gray-700 font-semibold mb-2">Title</label>
-            <input type="text" id="title" name="title" class="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-600" placeholder="Enter post title" required>
-        </div>
+    <?php if (isset($rows)): ?>
+        <form action="" method="POST" class="space-y-6">
+            <div>
+                <label for="title" class="block text-gray-700 font-semibold mb-2">Title</label>
+                <input type="text" id="title" name="title" class="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-600" placeholder="Enter post title" required>
+            </div>
 
-        <!-- Content -->
-        <div>
-            <label for="content" class="block text-gray-700 font-semibold mb-2">Content</label>
-            <textarea id="content" name="content" class="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-600" rows="8" placeholder="Hi, in this post I want to talk about..." required></textarea>
-        </div>
+            <div>
+                <label for="content" class="block text-gray-700 font-semibold mb-2">Content</label>
+                <textarea id="content" name="content" class="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-600" rows="8" placeholder="Hi, in this post I want to talk about..." required></textarea>
+            </div>
 
-        <!-- Category -->
-        <div>
-            <label for="category" class="block text-gray-700 font-semibold mb-2">Category</label>
-            <select id="category" name="category" class="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-600" required>
-                <?php foreach ($rows as $row): ?>
-                    <option value="<?php echo htmlspecialchars($row['categories_id']); ?>"><?php echo htmlspecialchars($row['categories_name']); ?></option>
-                <?php endforeach; ?>
-            </select>
-        </div>
+            <div>
+                <label for="category" class="block text-gray-700 font-semibold mb-2">Category</label>
+                <select id="category" name="category" class="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-600" required>
+                    <?php foreach ($rows as $row): ?>
+                        <option value="<?php echo htmlspecialchars($row['categories_id']); ?>"><?php echo htmlspecialchars($row['categories_name']); ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
 
-        <!-- Submit Button -->
-        <button type="submit" class="w-full bg-blue-600 text-white p-3 rounded hover:bg-blue-700 transition duration-300">Publish Post</button>
-    </form>
+            <button type="submit" class="w-full bg-blue-600 text-white p-3 rounded hover:bg-blue-700 transition duration-300">Publish Post</button>
+        </form>
+    <?php else: ?>
+        <p class="text-red-500 text-center mb-4"><?php echo $message ?: 'Unable to load categories.'; ?></p>
+    <?php endif; ?>
 </section>
 
 <?php } else { ?>

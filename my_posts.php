@@ -32,12 +32,12 @@ if (isset($_SESSION['is_logged']) && $_SESSION['is_logged'] === true) {
                     <!-- عمداً آسیب‌پذیر به XSS برای تمرین -->
                     <p class="text-gray-600 mb-4"><?php echo $post['content']; ?></p>
                     <p class="text-sm text-gray-500 mb-2">Category: <?php echo htmlspecialchars($post['categories_name']); ?></p>
-                    <p class="text-sm text-gray-500 mb-2">Published on: <?php echo htmlspecialchars($post['created_at'] ?? 'Unknown'); ?></p>
+                    <p class="text-sm text-gray-500 mb-2">Published on: <?php echo htmlspecialchars($post['publication_date'] ?? 'Unknown'); ?></p>
                     <!-- عمداً آسیب‌پذیر به IDOR برای تمرین -->
                     <div class="space-x-2 flex items-center">
-                        <a href="view_post.php?post_id=<?php echo $post['id']; ?>" class="text-blue-600 hover:underline">View</a>
-                        <a href="edit_post.php?post_id=<?php echo $post['id']; ?>" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition duration-300">Edit</a>
-                        <a href="delete_post.php?post_id=<?php echo $post['id']; ?>" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition duration-300">Delete</a>
+                        <a href="view_post.php?post_id=<?php echo $post['post_id']; ?>" class="text-blue-600 hover:underline">View</a>
+                        <a href="edit_post.php?post_id=<?php echo $post['post_id']; ?>" class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition duration-300">Edit</a>
+                        <a href="delete_post.php?post_id=<?php echo $post['post_id']; ?>" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition duration-300">Delete</a>
                     </div>
                 </div>
             <?php endforeach; ?>

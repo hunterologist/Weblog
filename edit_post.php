@@ -1,5 +1,6 @@
 <?php
 session_start();
+$page_title = "Edit Post";
 include 'header.php';
 include 'db.php';
 
@@ -11,100 +12,69 @@ if (!isset($_SESSION['is_logged']) || $_SESSION['is_logged'] !== true) {
 
 // Validate post_id
 if (!isset($_GET['post_id'])) {
-    echo "No post ID provided.";
-    exit();
-}
-$post_id = intval($_GET['post_id']);
-if ($post_id <= 0) {
-    echo "Invalid post ID.";
-    exit();
-}
+    $message = "No post ID provided.";
+} else {
+    $post_id = intval($_GET['post_id']);
+    if ($post_id <= 0) {
+        $message = "Invalid post ID.";
+    } else {
+        // Fetch the post and ensure it exists
+        $sql = "SELECT * FROM posts WHERE post_id = $post_id";
+        $result = mysqli_query($conn, $sql);
+        if (!$result || mysqli_num_rows($result) === 0) {
+            $message = "Post not found.";
+        } else {
+            $post = mysqli_fetch_assoc($result);
 
-// Fetch the post and ensure it exists
-$sql = "SELECT * FROM posts WHERE post_id = $post_id";
-$result = mysqli_query($conn, $sql);
-if (!$result || mysqli_num_rows($result) === 0) {
-    echo "Post not found.";
-    exit();
-}
-$post = mysqli_fetch_assoc($result);
-
-// Check if the current user is authorized to edit the post
-if ($_SESSION['user_id'] != $post['author_id']) {
-    echo "You are not authorized to edit this post.";
-    exit();
+            // Check if the current user is authorized to edit the post
+            // عمداً ناقص برای تمرین IDOR
+            if ($_SESSION['id'] != $post['author_id']) {
+                $message = "You are not authorized to edit this post.";
+            }
+        }
+    }
 }
 
 // Process form submission
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    // Retrieve updated values, sanitize accordingly
+if ($_SERVER["REQUEST_METHOD"] === "POST" && !isset($message)) {
     $title = mysqli_real_escape_string($conn, $_POST['title']);
     $content = mysqli_real_escape_string($conn, $_POST['content']);
 
-    // Optional: Add update for category if needed
-    // $category_id = intval($_POST['category']);
-
+    // عمداً آسیب‌پذیر به SQL Injection برای تمرین
     $sql_update = "UPDATE posts SET title = '$title', content = '$content' WHERE post_id = $post_id";
     if (mysqli_query($conn, $sql_update)) {
         header("Location: my_posts.php?msg=Your post has been updated successfully!");
         exit();
     } else {
-        $error = "Error updating the post: " . mysqli_error($conn);
+        $message = "Error updating the post: " . mysqli_error($conn);
     }
 }
 ?>
-<body>
-    <header>
-        <nav>
-            <ul>
-                <li><a href="index.php">Main</a></li>
-                <li><a href="user_panel.php">Panel</a></li>
-                <li><a href="wirte_post.php">Write</a></li>
-                <li><a href="my_posts.php">Posts</a></li>
-                <li><a href="settings.php">Settings</a></li>
-                <li>(<?php echo $_SESSION['username']; ?>) <a href="/logout.php">Logout</a></li>
-            </ul>
-        </nav>
-    </header>
 
-    <main>
-        <section>
-            <h1>Edit Post</h1>
-            <?php
-            if (isset($error)) {
-                echo "<p>$error</p>";
-            }
-            ?>
+<section class="max-w-2xl mx-auto py-12">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6 text-center">Edit Post</h1>
+
+    <?php if (isset($message)): ?>
+        <p class="text-red-500 text-center mb-4"><?php echo htmlspecialchars($message); ?></p>
+        <p class="text-center"><a href="my_posts.php" class="text-blue-600 hover:underline">Back to My Posts</a></p>
+    <?php elseif (isset($post)): ?>
+        <div class="bg-white p-6 rounded-lg shadow-md space-y-4">
             <form action="" method="POST">
-                <label for="title">Title:</label>
-                <input type="text" id="title" name="title" value="<?php echo htmlspecialchars($post['title']); ?>" required><br><br>
-                
-                <label for="content">Content:</label><br>
-                <textarea id="content" name="content" rows="10" cols="50" required><?php echo htmlspecialchars($post['content']); ?></textarea><br><br>
-                
-                <!-- If you want to update the category field, uncomment and adjust the following code.
-                <label for="category">Category:</label>
-                <select id="category" name="category">
-                    <?php
-                    /*
-                    $categories_sql = "SELECT * FROM categories";
-                    $categories_result = mysqli_query($conn, $categories_sql);
-                    while ($cat = mysqli_fetch_assoc($categories_result)) {
-                        $selected = ($cat['id'] == $post['category_id']) ? 'selected' : '';
-                        echo "<option value='{$cat['id']}' $selected>{$cat['name']}</option>";
-                    }
-                    */
-                    ?>
-                </select><br><br>
-                -->
-                
-                <input type="submit" value="Update Post">
+                <div>
+                    <label for="title" class="block text-gray-700 font-semibold mb-2">Title</label>
+                    <input type="text" id="title" name="title" value="<?php echo htmlspecialchars($post['title']); ?>" class="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-600" required>
+                </div>
+
+                <div>
+                    <label for="content" class="block text-gray-700 font-semibold mb-2">Content</label>
+                    <textarea id="content" name="content" class="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-600" rows="8" required><?php echo htmlspecialchars($post['content']); ?></textarea>
+                </div>
+
+                <button type="submit" class="w-full bg-blue-600 text-white p-3 rounded hover:bg-blue-700 transition duration-300">Update Post</button>
             </form>
-        </section>
-    </main>
-    
-    <footer>
-        <p>&copy; 2023 Voorivex Weblog System. All rights reserved.</p>
-    </footer>
-</body>
-</html>
+            <p class="text-center"><a href="my_posts.php" class="text-blue-600 hover:underline">Cancel</a></p>
+        </div>
+    <?php endif; ?>
+</section>
+
+<?php include 'footer.php'; ?>
