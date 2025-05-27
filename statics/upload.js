@@ -4,20 +4,16 @@ if (typeof jQuery === 'undefined') {
     console.error("jQuery is not loaded. Please include jQuery before this script.");
 } else {
     $(document).ready(function() {
-        $("#image").change(function() {
-            var formData = new FormData();
+        $("#uploadForm").on('submit', function(e) {
+            e.preventDefault(); // جلوگیری از ارسال فرم به صورت پیش‌فرض
+
+            var formData = new FormData(this);
             var fileInput = document.getElementById("image");
             var file = fileInput.files[0];
 
             if (file) {
-                formData.append("image", file);
-
                 // نمایش پیشرفت آپلود
-                var progressBar = document.createElement("progress");
-                progressBar.id = "uploadProgress";
-                progressBar.value = 0;
-                progressBar.max = 100;
-                fileInput.parentNode.appendChild(progressBar);
+                $("#uploadProgress").val(0); // ریست کردن progress bar
 
                 $.ajax({
                     url: "upload.php",
@@ -25,43 +21,37 @@ if (typeof jQuery === 'undefined') {
                     data: formData,
                     contentType: false,
                     processData: false,
-                    dataType: 'json', // انتظار JSON داریم
+                    dataType: 'json',
                     xhr: function() {
                         var xhr = new window.XMLHttpRequest();
                         xhr.upload.addEventListener("progress", function(evt) {
                             if (evt.lengthComputable) {
                                 var percent = (evt.loaded / evt.total) * 100;
                                 $("#uploadProgress").val(percent);
+                                console.log("Upload progress: " + percent + "%");
                             }
                         }, false);
                         return xhr;
                     },
                     success: function(response) {
-                        var messageDiv = document.createElement("p");
-                        messageDiv.id = "message";
-                        messageDiv.className = response.status === 'success' ? "message success" : "message error";
-                        messageDiv.innerHTML = response.message;
-                        fileInput.parentNode.appendChild(messageDiv);
-                        // به جای رفرش، فقط تصویر رو آپدیت می‌کنیم
+                        $("#message").removeClass("message error success");
+                        $("#message").addClass(response.status === 'success' ? "message success" : "message error");
+                        $("#message").html(response.message);
                         if (response.status === 'success') {
                             var img = document.querySelector('img[alt="Profile Image"]');
-                            img.src = img.src + '?' + new Date().getTime(); // Force reload image
+                            img.src = img.src + '?' + new Date().getTime();
                         }
                     },
                     error: function(xhr, status, error) {
-                        var messageDiv = document.createElement("p");
-                        messageDiv.id = "message";
-                        messageDiv.className = "message error";
-                        messageDiv.innerHTML = "Upload failed: " + error;
-                        fileInput.parentNode.appendChild(messageDiv);
+                        $("#message").removeClass("message error success");
+                        $("#message").addClass("message error");
+                        $("#message").html("Upload failed: " + error);
                     }
                 });
             } else {
-                var messageDiv = document.createElement("p");
-                messageDiv.id = "message";
-                messageDiv.className = "message error";
-                messageDiv.innerHTML = "Please select an image file.";
-                fileInput.parentNode.appendChild(messageDiv);
+                $("#message").removeClass("message error success");
+                $("#message").addClass("message error");
+                $("#message").html("Please select an image file.");
             }
         });
     });

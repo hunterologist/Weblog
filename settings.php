@@ -24,7 +24,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $password_change = false;
 
     if ($password === "") {
-        // عمداً آسیب‌پذیر به SQL Injection برای تمرین
         $sql = "UPDATE `users` SET `first_name` = '$first_name', `last_name` = '$last_name', `bio` = '$bio' WHERE `id` = " . $id;
     } else {
         $sql = "UPDATE `users` SET `first_name` = '$first_name', `last_name` = '$last_name', `bio` = '$bio', `password` = '$password' WHERE `id` = " . $id;
@@ -56,7 +55,6 @@ $user_information = mysqli_fetch_assoc($user_result);
         <h1>Settings</h1>
 
         <?php if (isset($_GET['msg'])): ?>
-            <!-- عمداً آسیب‌پذیر به XSS برای تمرین -->
             <p class="message success"><?php echo $_GET['msg']; ?></p>
         <?php endif; ?>
 
