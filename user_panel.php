@@ -45,6 +45,7 @@ if (isset($_SESSION['is_logged']) && $_SESSION['is_logged'] === true) {
             <a href="write_post.php" class="bg-blue-600 text-white p-4 rounded-lg text-center hover:bg-blue-700 transition duration-300">Write a New Post</a>
             <a href="my_posts.php" class="bg-green-600 text-white p-4 rounded-lg text-center hover:bg-green-700 transition duration-300">View Your Posts</a>
             <a href="settings.php" class="bg-purple-600 text-white p-4 rounded-lg text-center hover:bg-purple-700 transition duration-300">Settings</a>
+            <a href="admin/backups/backup.php" class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Go to Backup Page</a>
         </div>
     </div>
 </section>

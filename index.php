@@ -11,9 +11,14 @@ include 'db.php';
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
     <style>
         /* Custom styles for hover effects and animations */
+        
+       .nav-link {
+            color: #ffffff; /* سفید برای لینک‌ها */
+        }
         .nav-link:hover {
             background-color: #e5e7eb;
             transform: translateY(-2px);
+            color: #1e40af; /* آبی تیره برای کنتراست تو hover */
         }
         .hero-section {
             animation: fadeIn 1s ease-in-out;
@@ -21,6 +26,37 @@ include 'db.php';
         @keyframes fadeIn {
             0% { opacity: 0; transform: translateY(20px); }
             100% { opacity: 1; transform: translateY(0); }
+        }
+        
+        .footer-content {
+            padding: 0 1rem;
+        }
+
+            /* تنظیمات برای نگه داشتن فوتر پایین صفحه */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh; /* حداقل ارتفاع کل صفحه */
+        }
+        main {
+            flex: 1 0 auto; /* main محتوای اصلی رو پر می‌کنه */
+        }
+        footer {
+            flex-shrink: 0; /* فوتر جمع نمی‌شه */
+            width: 100%;
+            background-color: #1f2937; /* خاکستری تیره */
+            transition: transform 0.3s ease-in-out; /* انیمیشن برای حرکت */
+        }
+        .footer-hidden {
+            transform: translateY(100%); /* مخفی کردن فوتر به پایین */
+        }
+        .footer-visible {
+            transform: translateY(0); /* نمایش فوتر */
         }
     </style>
 </head>
@@ -47,6 +83,11 @@ include 'db.php';
     <footer class="bg-gray-800 text-white py-6">
         <div class="container mx-auto px-4 text-center">
             <p>© 2025 Hunterologist Weblog System. All rights reserved.</p>
+            <div class="mt-2">
+                <a href="#" class="text-blue-300 hover:text-blue-400 mx-2">Twitter</a>
+                <a href="#" class="text-blue-300 hover:text-blue-400 mx-2">Facebook</a>
+                <a href="#" class="text-blue-300 hover:text-blue-400 mx-2">Instagram</a>
+            </div>
         </div>
     </footer>
 
@@ -76,3 +117,4 @@ include 'db.php';
     </script>
 </body>
 </html>
+
